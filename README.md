@@ -23,3 +23,4 @@ This interactive dashboard investigates the geospatial and behavioral risk facto
 - **Key Variables**: Obesity risk, sleep prevalence, income levels, walkability, access to exercise, demographics.
 - **Collection**: Compiled from publicly available datasets for spatial risk modeling.
 
+This dashboard provides insight into which behavioral and environmental factors most strongly influence obesity risk in different regions of Georgia. The findings can guide resource allocation and inform region-specific intervention strategies to improve population health.
