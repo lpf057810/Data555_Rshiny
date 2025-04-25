@@ -68,9 +68,12 @@ p <- ggplot(dat, aes(x = County, y = Obesity.Risk, fill = Category)) +
        y = "Obesity Risk(%)",
        fill = "Category") +  
   # Adds labels and title for better readability
-  
-  theme_minimal()  
+
   # Applies a clean, minimalistic theme for better visualization
+  theme_minimal()+
+    theme(
+        axis.text.x=element_text(angle=45,vjust=1)
+        )
 
 # Convert ggplot object to an interactive Plotly plot
 # Ensures a tooltip with relevant information appears when hovering over a data point
