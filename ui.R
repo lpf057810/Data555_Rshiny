@@ -29,21 +29,22 @@ shinyUI(fluidPage(
     
     tabPanel("Dataset Info",
              h4("Dataset Description"),
-             p("This dataset explores geospatial and behavioral risk factors contributing to obesity across Georgia counties."),
-             p("Data Source: project-Geo final_combined.csv"),
-             p("Filtered to counties with model R² > 0.85; counties like Cherokee, Henry, and Paulding excluded."),
-             p("Variables include: sleep, income, environment, demographics."),
-             p("Purpose: explore regional obesity risk for public health interventions.")
+             p("The dataset can be accessed from the public source at ",
+               tags$a(href = "https://github.com/lpf057810/APE", "GitHub", target = "_blank"), "."),
+             p("Sample size includes 978 Census Tracts across Atlanta, Georgia, with 85 measured variables."),
+             p("The study population comprises citizens from 28 counties in the Atlanta metropolitan area who are classified as obese."),
+             p("Data were collected by merging public datasets at the Census Tract level using SQL and Python, including the CDC 500 Cities Project (2022), USDA Food Access Research Atlas (2022), NASA Black Marble Suite (2017–2022), and the National Neighborhood Data Archive (2017–2022)."),
+             p("The overall time period covered by the datasets is from 2017 to 2022.")
     )
   ),
   
-
   hr(),
+  
   div(
     style = "text-align:center; padding:10px;",
     p("View the source code on ",
       tags$a(href = "https://github.com/lpf057810/Data555_Rshiny", 
              "GitHub", target = "_blank"),
-      "| This dashboard helps identify key factors contributing to obesity in Georgia counties. The findings support targeted public health planning and resource allocation.")
+      " | This dashboard helps identify key factors contributing to obesity in Georgia counties. The findings support targeted public health planning and resource allocation.")
   )
 ))
