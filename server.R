@@ -66,9 +66,9 @@ shinyServer(function(input, output, session) {
   
   output$takeaway1 <- renderUI({
     tags$ul(
-      tags$li("Identifies distribution of key predictors by county."),
-      tags$li("Shows how different variables (e.g., sleep, income) vary by category."),
-      tags$li("Compares categories to detect patterns in obesity prevalence.")
+      tags$li("Identifies the distribution of key predictor variables related to obesity risk across counties."),
+      tags$li("Highlights how different factors (e.g., sleep, income) contribute to variations in obesity prevalence."),
+      tags$li("Compares environmental, behavioral, and sociodemographic categories to detect key trends and patterns.")
     )
   })
   
@@ -121,9 +121,9 @@ shinyServer(function(input, output, session) {
   
   output$takeaway2 <- renderUI({
     tags$ul(
-      tags$li("Shows where models perform best (based on R²)."),
-      tags$li("Spatially highlights obesity risk."),
-      tags$li("Connects sleep prevalence to obesity by region.")
+      tags$li("Identifies counties where the model performs best and worst based on R² values, with darker shades indicating better model fit."),
+      tags$li("Highlights regional variations in obesity risk, revealing spatial patterns across different counties."),
+      tags$li("Illustrates the relationship between insufficient sleep prevalence and obesity risk, helping to understand how sleep behavior influences health outcomes.")
     )
   })
   
