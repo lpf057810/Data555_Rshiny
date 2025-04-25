@@ -35,5 +35,15 @@ shinyUI(fluidPage(
              p("Variables include: sleep, income, environment, demographics."),
              p("Purpose: explore regional obesity risk for public health interventions.")
     )
+  ),
+  
+
+  hr(),
+  div(
+    style = "text-align:center; padding:10px;",
+    p("View the source code on ",
+      tags$a(href = "https://github.com/lpf057810/Data555_Rshiny", 
+             "GitHub", target = "_blank"),
+      "| This dashboard helps identify key factors contributing to obesity in Georgia counties. The findings support targeted public health planning and resource allocation.")
   )
 ))
