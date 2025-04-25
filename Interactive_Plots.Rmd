@@ -1,0 +1,152 @@
+---
+title: "Interactive Plots"
+author: "Pengfei Lou"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r,echo=TRUE,warning=FALSE,message=FALSE}
+pacman::p_load(
+  plotly,
+  esquiess,
+  ggplot2,
+  DT,
+  dplyr,
+  tigris,
+  sf,
+  leaflet,
+  htmltools,
+  knitr
+)
+```
+
+```{r,include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,        # Hides code from all chunks
+  message = FALSE,     # Hides messages from all chunks
+  warning = FALSE      # Hides warnings from all chunks
+  
+)
+```
+
+```{r,results='hide'}
+dat<-read.csv("D:\\project-Geo\\final_combined.csv")
+
+str(dat)
+dat$County<-as.factor(dat$County)
+dat$Category<-as.factor(dat$Category)
+dat$Variable<-as.factor(dat$Variable)
+
+dat<-dat %>% filter(dat$R.2>0.85) 
+dat<-dat %>% filter(!County %in% c("Cherokee","Henry","Paulding"))
+```
+
+
+## Figure 1.Exploratory Data Analysis: Feature Distribution
+
+```{r,echo=TRUE,message=FALSE, warning=FALSE}
+# Create ggplot with side-by-side boxplots and jittered points positioned to the side of the boxplot
+# Each jitter point is color-coded by the 'Variable' column
+dat$Variable_jitter <- as.numeric(factor(dat$Variable)) + 0.35  # Slightly shifts jittered points for better visibility
+
+p <- ggplot(dat, aes(x = County, y = Obesity.Risk, fill = Category)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.5, width = 0.4, position = position_nudge(x = -0.7)) +  
+  # Creates boxplots with adjusted width, transparency, and nudged slightly to the left
+  
+  geom_jitter(aes(x = Variable_jitter, text = paste("Variable(%):", Variable,
+                                                    "<br>Prevalence(%):", round(Value, 2), 
+                                                    "<br>Obesity Risk(%): ", round(Obesity.Risk, 2),  
+                                                    "<br>Category:", Category)), 
+              width = 0.1, size = 2, alpha = 0.9) +  
+  # Adds jittered points with a small horizontal spread, positioned slightly to the right
+  
+  scale_x_discrete(labels = levels(factor(dat$County))) +  
+  # Ensures correct labeling of the 'County' variable on the x-axis
+  
+  labs(title = "Exploratory Data Analysis: Feature Distribution",
+       x = "County",
+       y = "Obesity Risk(%)",
+       fill = "Category") +  
+  # Adds labels and title for better readability
+  
+  theme_minimal()  
+  # Applies a clean, minimalistic theme for better visualization
+
+# Convert ggplot object to an interactive Plotly plot
+# Ensures a tooltip with relevant information appears when hovering over a data point
+ggplotly(p, tooltip = "text")  
+
+
+
+```
+
+**Key Takeaways**
+
+- Identifies the distribution of key predictor variables related to obesity risk across counties.
+- Highlights how different factors (e.g., sleep, income) contribute to variations in obesity prevalence.
+- Compares environmental, behavioral, and sociodemographic categories to detect key trends and patterns.
+
+
+
+```{r,results='hide'}
+ga_counties<-counties(state="GA",cb=TRUE,resolution="20m")
+ga_counties <- ga_counties %>% rename(County=NAME)
+selected_counties <- ga_counties %>% filter(County %in% dat$County) %>%
+  left_join(dat,by="County")
+#unique(ga_counties)
+```
+
+## Figure 2.Region Bias
+
+```{r,echo=TRUE}
+
+# Filter for "Insufficient Sleep Prevalence" variable
+selected_counties <- selected_counties %>%
+  filter(Variable == "Insufficient Sleep Prevalence")
+
+# Define color palette based on R² values
+pal <- colorNumeric(palette = "YlOrRd", domain = selected_counties$R.2, na.color = "transparent")
+
+# Create hover text with multiple variables
+selected_counties$hover_text <- paste0(
+  "<strong>County:</strong> ", selected_counties$County, "<br>",
+  "<strong>Obesity Risk(%):</strong> ", round(selected_counties$Obesity.Risk, 3), "<br>",
+  "<strong>Insufficient Sleep Prevalence(%):</strong> ", selected_counties$Value, "<br>"
+)
+
+# Create a title for the map
+title <- tags$div(
+  tags$h3("Region Bias",
+          style = "text-align:center; font-weight:bold; background:white; padding:3px;"))
+
+# Generate the interactive leaflet map
+leaflet(selected_counties) %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(R.2),  # Fill color varies by R²
+    fillOpacity = 0.7,      
+    color = ~pal(R.2),  # Border color also varies by R²
+    weight = 2,  # Border thickness
+    label = lapply(selected_counties$hover_text, HTML),  # Display hover tooltip
+    highlight = highlightOptions(weight = 3, color = "blue", bringToFront = TRUE)
+  ) %>%
+  addLegend(pal = pal, values = selected_counties$R.2, title = "R² Value", position = "bottomright") %>%
+  addControl(title, position = "topright") %>%  # Change "topcenter" to "topright"
+  # Add county name labels at the center of each county
+  addLabelOnlyMarkers(
+    data = selected_counties,
+    lng = st_coordinates(st_centroid(selected_counties))[,1],  # Get X (longitude)
+    lat = st_coordinates(st_centroid(selected_counties))[,2],  # Get Y (latitude)
+    label = ~County,  # Display county name
+    labelOptions = labelOptions(noHide = TRUE, textOnly = TRUE, style = list("color" = "black", "font-weight" = "bold"))
+  )
+
+
+```
+
+**Key Takeaways**
+
+- Identifies counties where the model performs best and worst based on R² values, with darker shades indicating better model fit.
+- Highlights regional variations in obesity risk, revealing spatial patterns across different counties.
+- Illustrates the relationship between insufficient sleep prevalence and obesity risk, helping to understand how sleep behavior influences health outcomes.
+
